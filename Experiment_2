@@ -1,0 +1,40 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+
+# Data
+X = np.arange(1, 10).reshape(-1, 1)
+Y = np.array([35, 40, 50, 55, 60, 70, 75, 85, 90])
+
+# Train model
+model = LinearRegression().fit(X, Y)
+Y_pred = model.predict(X)
+
+print("Weight (slope):", model.coef_[0])
+print("Bias (intercept):", model.intercept_)
+
+# Plot
+plt.scatter(X, Y, label="Actual")
+plt.plot(X, Y_pred, label="Regression Line")
+plt.xlabel("Study Hours")
+plt.ylabel("Marks")
+plt.title("Linear Regression: Study Hours vs Marks")
+plt.legend()
+plt.show()
+
+
+# Testing Phase: Predict Marks for New Study Hours
+X_test = np.array([[2], [5], [8]])
+Y_test_pred = model.predict(X_test)
+
+for h, p in zip(X_test.flatten(), Y_test_pred):
+    print(f"Predicted Marks for {h} study hours = {p:.2f}")
+
+plt.scatter(X, Y, label="Training Data")
+plt.plot(X, Y_pred, label="Regression Line")
+plt.scatter(X_test, Y_test_pred, s=100, label="Test Predictions")
+plt.xlabel("Study Hours")
+plt.ylabel("Marks")
+plt.title("Testing Phase: Study Hours vs Marks")
+plt.legend()
+plt.show()
