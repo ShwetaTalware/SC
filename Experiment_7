@@ -1,0 +1,133 @@
+pip install scikit-fuzzy
+
+# Max-Membership Function
+
+import numpy as np
+import skfuzzy as fuzz
+import matplotlib.pyplot as plt
+
+# Step 1: Create values from 0 to 10
+x = np.arange(0, 10.1, 0.1)
+
+# Step 2: Create a trapezoidal fuzzy set
+# trapmf(x, [a, b, c, d])
+membership = fuzz.trapmf(x, [3, 5, 7, 9])
+
+# Step 3: Print array shapes
+print("Shape of x:", x.shape)
+print("Shape of membership:", membership.shape)
+
+# Step 4: Calculate FoM, LoM, and MoM
+fom = fuzz.defuzz(x, membership, 'som')   # first position with max membership
+lom = fuzz.defuzz(x, membership, 'lom')   # last position with max membership
+mom = fuzz.defuzz(x, membership, 'mom')   # middle of all max positions
+
+# Step 5: Plot fuzzy set
+plt.figure(figsize=(10,6))
+plt.plot(x, membership, 'k', linewidth=2, label="Fuzzy Set")
+
+# Horizontal line showing max membership height
+max_h = membership.max()
+plt.axhline(max_h, color='gray', linestyle=':')
+
+# Mark FoM, LoM, MoM with vertical lines
+plt.axvline(fom, color='c', linestyle='--', label=f"FoM = {fom:.2f}")
+plt.axvline(lom, color='m', linestyle='--', label=f"LoM = {lom:.2f}")
+plt.axvline(mom, color='g', linestyle='--', label=f"MoM = {mom:.2f}")
+
+# Titles and labels
+plt.title("Max-Membership Principle Defuzzification")
+plt.xlabel("Output Value")
+plt.ylabel("Membership Grade")
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+# Centroid Method
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Universe of discourse
+x = np.arange(0, 10.1, 0.1)
+
+# Simple triangular membership function (trimf)
+def triangular_mf(x, a, b, c):
+    m = np.zeros_like(x)
+    left  = (x >= a) & (x <= b)
+    right = (x >= b) & (x <= c)
+    if b != a:
+        m[left]  = (x[left]  - a) / (b - a)
+    if c != b:
+        m[right] = (c - x[right]) / (c - b)
+    return np.clip(m, 0, 1)
+
+# Build membership and compute centroid (center of gravity)
+membership = triangular_mf(x, 2, 5, 8)
+centroid = np.sum(x * membership) / np.sum(membership)
+
+print(f"The defuzzified centroid value is: {centroid:.2f}")
+
+# Plot
+plt.figure(figsize=(8,5))
+plt.plot(x, membership, 'k', linewidth=2.5, label='Fuzzy Set (triangular)')
+plt.axvline(centroid, color='r', linestyle='--', label=f'Centroid ({centroid:.2f})')
+plt.title('Centroid Defuzzification')
+plt.xlabel('x')
+plt.ylabel('Membership')
+plt.ylim(-0.1, 1.1)
+plt.legend()
+plt.grid(True)
+plt.show()
+
+
+# Weighted Average Method
+import numpy as np
+import matplotlib.pyplot as plt
+
+# Universe
+x = np.arange(0, 11, 0.1)
+
+# Weighted average (centers and weights)
+centers = np.array([2, 5, 8])
+weights = np.array([0.4, 0.8, 0.6])
+weighted_avg = np.sum(centers * weights) / np.sum(weights)
+print(f"The defuzzified weighted average is: {weighted_avg:.2f}")
+
+# Simple triangular mf (trimf) implementation
+def trimf(x, a, b, c):
+    m = np.zeros_like(x)
+    left  = (x >= a) & (x <= b)
+    right = (x >= b) & (x <= c)
+    if b != a:
+        m[left]  = (x[left]  - a) / (b - a)
+    if c != b:
+        m[right] = (c - x[right]) / (c - b)
+    return np.clip(m, 0, 1)
+
+# Build membership functions
+low    = trimf(x, 0, 2, 5)
+medium = trimf(x, 2, 5, 8)
+high   = trimf(x, 5, 8, 10)
+
+# Simple interp_membership replacement (gives membership at a point)
+def interp_membership(x, mf, val):
+    return float(np.interp(val, x, mf))
+
+height = interp_membership(x, medium, weighted_avg)
+
+# Plot
+plt.figure(figsize=(9,5))
+plt.plot(x, low,    label='Low')
+plt.plot(x, medium, label='Medium')
+plt.plot(x, high,   label='High')
+plt.plot(centers, [1,1,1], 'ko', label='Centers')
+plt.axvline(weighted_avg, color='r', linestyle='--', ymax=height,
+            label=f'Weighted Avg ({weighted_avg:.2f})')
+plt.title('Weighted Average Defuzzification')
+plt.xlabel('Output value')
+plt.ylabel('Membership')
+plt.ylim(-0.1, 1.1)
+plt.legend(); plt.grid(True)
+plt.show()
+
