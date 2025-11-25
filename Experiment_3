@@ -1,0 +1,43 @@
+import numpy as np
+
+# Sigmoid and derivative
+def sigmoid(x):
+    return 1 / (1 + np.exp(-x))
+
+def dsigmoid(x):
+    return x * (1 - x)
+
+# Dataset
+X = np.array([[0,0],[0,1],[1,0],[1,1]])
+y = np.array([[0],[1],[1],[0]])
+
+# Weights
+np.random.seed(1)
+W1 = np.random.rand(2, 2)   # input → hidden (2x2)
+W2 = np.random.rand(2, 1)   # hidden → output (2x1)
+
+lr = 0.5  # learning rate
+
+# Training
+for _ in range(10000):
+    h = sigmoid(X.dot(W1))          # hidden layer
+    o = sigmoid(h.dot(W2))          # output layer
+
+    e = y - o                       # error
+    o_delta = e * dsigmoid(o)       # output delta
+    h_delta = o_delta.dot(W2.T) * dsigmoid(h)
+
+    W2 += h.T.dot(o_delta) * lr
+    W1 += X.T.dot(h_delta) * lr
+
+# Predictions
+pred = sigmoid(sigmoid(X.dot(W1)).dot(W2))
+print("Predictions:")
+print(pred)
+
+binary = (pred > 0.5).astype(int)
+print("\nBinary Predictions:")
+print(binary)
+
+acc = np.mean(binary == y)
+print(f"\nAccuracy: {acc*100:.2f}%")
